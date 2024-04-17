@@ -49,30 +49,30 @@ namespace System.CommandLine.Parsing
         {
             if (completeValidation)
             {
-// TODO: invocation
-//                if (Command.Action is null && Command.HasSubcommands)
+                // TODO: invocation
+                //                if (Command.Action is null && Command.HasSubcommands)
                 if (Command.HasSubcommands)
                 {
                     SymbolResultTree.InsertFirstError(
-                        new ParseError(LocalizationResources.RequiredCommandWasNotProvided(), this));
+                        new CliDiagnostic(new("validateSubCommandError", "Validation Error", LocalizationResources.RequiredCommandWasNotProvided(), CliDiagnosticSeverity.Warning, null), [], symbolResult: this));
                 }
 
-// TODO: validators
-/*
-                if (Command.HasValidators)
-                {
-                    int errorCountBefore = SymbolResultTree.ErrorCount;
-                    for (var i = 0; i < Command.Validators.Count; i++)
-                    {
-                        Command.Validators[i](this);
-                    }
+                // TODO: validators
+                /*
+                                if (Command.HasValidators)
+                                {
+                                    int errorCountBefore = SymbolResultTree.ErrorCount;
+                                    for (var i = 0; i < Command.Validators.Count; i++)
+                                    {
+                                        Command.Validators[i](this);
+                                    }
 
-                    if (SymbolResultTree.ErrorCount != errorCountBefore)
-                    {
-                        return;
-                    }
-                }
-*/
+                                    if (SymbolResultTree.ErrorCount != errorCountBefore)
+                                    {
+                                        return;
+                                    }
+                                }
+                */
             }
 
             if (Command.HasOptions)
@@ -93,8 +93,8 @@ namespace System.CommandLine.Parsing
             {
                 var option = options[i];
 
-// TODO: VersionOption, recursive options
-//              if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
+                // TODO: VersionOption, recursive options
+                //              if (!completeValidation && !(option.Recursive || option.Argument.HasDefaultValue || option is VersionOption))
                 if (!completeValidation && !option.Argument.HasDefaultValue)
                 {
                     continue;
@@ -137,23 +137,23 @@ namespace System.CommandLine.Parsing
                     continue;
                 }
 
-// TODO: validators
-/*
-                if (optionResult.Option.HasValidators)
-                {
-                    int errorsBefore = SymbolResultTree.ErrorCount;
+                // TODO: validators
+                /*
+                                if (optionResult.Option.HasValidators)
+                                {
+                                    int errorsBefore = SymbolResultTree.ErrorCount;
 
-                    for (var j = 0; j < optionResult.Option.Validators.Count; j++)
-                    {
-                        optionResult.Option.Validators[j](optionResult);
-                    }
+                                    for (var j = 0; j < optionResult.Option.Validators.Count; j++)
+                                    {
+                                        optionResult.Option.Validators[j](optionResult);
+                                    }
 
-                    if (errorsBefore != SymbolResultTree.ErrorCount)
-                    {
-                        continue;
-                    }
-                }
-*/
+                                    if (errorsBefore != SymbolResultTree.ErrorCount)
+                                    {
+                                        continue;
+                                    }
+                                }
+                */
 
                 _ = argumentResult.GetArgumentConversionResult();
             }

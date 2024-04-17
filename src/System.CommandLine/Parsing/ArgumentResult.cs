@@ -123,7 +123,7 @@ namespace System.CommandLine.Parsing
         /// <inheritdoc/>
         internal override void AddError(string errorMessage)
         {
-            SymbolResultTree.AddError(new CliDiagnostic(errorMessage, AppliesToPublicSymbolResult));
+            SymbolResultTree.AddError(new CliDiagnostic(new("", "", errorMessage, CliDiagnosticSeverity.Warning, null), [], symbolResult: AppliesToPublicSymbolResult));
             _conversionResult = ArgumentConversionResult.Failure(this, errorMessage, ArgumentConversionResultType.Failed);
         }
 
@@ -133,26 +133,26 @@ namespace System.CommandLine.Parsing
             {
                 return ReportErrorIfNeeded(arityFailure);
             }
-// TODO: validators
-/*
-            // There is nothing that stops user-defined Validator from calling ArgumentResult.GetValueOrDefault.
-            // In such cases, we can't call the validators again, as it would create infinite recursion.
-            // GetArgumentConversionResult => ValidateAndConvert => Validator
-            //        => GetValueOrDefault => ValidateAndConvert (again)
-            if (useValidators && Argument.HasValidators)
-            {
-                for (var i = 0; i < Argument.Validators.Count; i++)
-                {
-                    Argument.Validators[i](this);
-                }
+            // TODO: validators
+            /*
+                        // There is nothing that stops user-defined Validator from calling ArgumentResult.GetValueOrDefault.
+                        // In such cases, we can't call the validators again, as it would create infinite recursion.
+                        // GetArgumentConversionResult => ValidateAndConvert => Validator
+                        //        => GetValueOrDefault => ValidateAndConvert (again)
+                        if (useValidators && Argument.HasValidators)
+                        {
+                            for (var i = 0; i < Argument.Validators.Count; i++)
+                            {
+                                Argument.Validators[i](this);
+                            }
 
-                // validator provided by the user might report an error, which sets _conversionResult
-                if (_conversionResult is not null)
-                {
-                    return _conversionResult;
-                }
-            }
-*/
+                            // validator provided by the user might report an error, which sets _conversionResult
+                            if (_conversionResult is not null)
+                            {
+                                return _conversionResult;
+                            }
+                        }
+            */
             if (Parent!.UseDefaultValueFor(this))
             {
                 var defaultValue = Argument.GetDefaultValue(this);
@@ -193,7 +193,7 @@ namespace System.CommandLine.Parsing
                 ArgumentConversionResult.ArgumentConversionCannotParse(
                     this,
                     Argument.ValueType,
-                    Tokens.Count > 0 
+                    Tokens.Count > 0
                         ? Tokens[0].Value
                         : ""));
 
@@ -201,7 +201,7 @@ namespace System.CommandLine.Parsing
             {
                 if (result.Result >= ArgumentConversionResultType.Failed)
                 {
-                    SymbolResultTree.AddError(new ParseError(result.ErrorMessage!, AppliesToPublicSymbolResult));
+                    SymbolResultTree.AddError(new CliDiagnostic(new("ArgumentConversionResultTypeFailed", "Type Conversion Failed", result.ErrorMessage!, CliDiagnosticSeverity.Warning, null), [], symbolResult: AppliesToPublicSymbolResult));
                 }
 
                 return result;
@@ -211,7 +211,7 @@ namespace System.CommandLine.Parsing
         /// <summary>
         /// Since Option.Argument is an internal implementation detail, this ArgumentResult applies to the OptionResult in public API if the parent is an OptionResult.
         /// </summary>
-        private SymbolResult AppliesToPublicSymbolResult => 
+        private SymbolResult AppliesToPublicSymbolResult =>
             Parent is OptionResult optionResult ? optionResult : this;
     }
 }

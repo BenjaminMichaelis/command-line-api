@@ -9,13 +9,13 @@ namespace System.CommandLine.Parsing
     {
         private readonly CliCommand _rootCommand;
         internal List<CliDiagnostic>? Errors;
-// TODO: unmatched tokens
-/*
-        internal List<CliToken>? UnmatchedTokens;
-*/
+        // TODO: unmatched tokens
+        /*
+                internal List<CliToken>? UnmatchedTokens;
+        */
         private Dictionary<string, SymbolNode>? _symbolsByName;
         internal SymbolResultTree(
-            CliCommand rootCommand, 
+            CliCommand rootCommand,
             List<string>? tokenizeErrors)
         {
             _rootCommand = rootCommand;
@@ -26,7 +26,7 @@ namespace System.CommandLine.Parsing
 
                 for (var i = 0; i < tokenizeErrors.Count; i++)
                 {
-                    Errors.Add(new ParseError(tokenizeErrors[i]));
+                    Errors.Add(new CliDiagnostic(new("", "", tokenizeErrors[i], CliDiagnosticSeverity.Warning, null), []));
                 }
             }
         }
@@ -41,11 +41,11 @@ namespace System.CommandLine.Parsing
         internal OptionResult? GetResult(CliOption option)
             => TryGetValue(option, out SymbolResult? result) ? (OptionResult)result : default;
 
-//TODO: directives
-/* 
-        internal DirectiveResult? GetResult(CliDirective directive)
-            => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
-*/
+        //TODO: directives
+        /* 
+                internal DirectiveResult? GetResult(CliDirective directive)
+                    => TryGetValue(directive, out SymbolResult? result) ? (DirectiveResult)result : default;
+        */
         internal IEnumerable<SymbolResult> GetChildren(SymbolResult parent)
         {
             if (parent is not ArgumentResult)
@@ -65,30 +65,30 @@ namespace System.CommandLine.Parsing
 
         internal void AddUnmatchedToken(CliToken token, CommandResult commandResult, CommandResult rootCommandResult)
         {
-/*
-// TODO: unmatched tokens
-            (UnmatchedTokens ??= new()).Add(token);
+            /*
+            // TODO: unmatched tokens
+                        (UnmatchedTokens ??= new()).Add(token);
 
-            if (commandResult.Command.TreatUnmatchedTokensAsErrors)
-            {
-                if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
-                {
-                    return;
-                }
+                        if (commandResult.Command.TreatUnmatchedTokensAsErrors)
+                        {
+                            if (commandResult != rootCommandResult && !rootCommandResult.Command.TreatUnmatchedTokensAsErrors)
+                            {
+                                return;
+                            }
 
-*/
-                AddError(new ParseError(LocalizationResources.UnrecognizedCommandOrArgument(token.Value), commandResult));
-//            }
+            */
+            AddError(new CliDiagnostic(new("", "", LocalizationResources.UnrecognizedCommandOrArgument(token.Value), CliDiagnosticSeverity.Warning, null), [], symbolResult: commandResult));
+            //            }
         }
 
         public SymbolResult? GetResult(string name)
         {
             if (_symbolsByName is null)
             {
-                _symbolsByName = new();  
+                _symbolsByName = new();
                 PopulateSymbolsByName(_rootCommand);
             }
-          
+
             if (!_symbolsByName.TryGetValue(name, out SymbolNode? node))
             {
                 throw new ArgumentException($"No symbol result found with name \"{name}\".");
@@ -107,11 +107,11 @@ namespace System.CommandLine.Parsing
             return null;
         }
 
-// TODO: symbolsbyname - this is inefficient
-// results for some values may not be queried at all, dependent on other options
-// so we could avoid using their value factories and adding them to the dictionary
-// could we sort by name allowing us to do a binary search instead of allocating a dictionary?
-// could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
+        // TODO: symbolsbyname - this is inefficient
+        // results for some values may not be queried at all, dependent on other options
+        // so we could avoid using their value factories and adding them to the dictionary
+        // could we sort by name allowing us to do a binary search instead of allocating a dictionary?
+        // could we add codepaths that query for specific kinds of symbols so they don't have to search all symbols?
         private void PopulateSymbolsByName(CliCommand command)
         {
             if (command.HasArguments)
