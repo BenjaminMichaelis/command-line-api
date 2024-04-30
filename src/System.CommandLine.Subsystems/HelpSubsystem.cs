@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation and contributors. All rights reserved.
+// Copyright (c) .NET Foundation and contributors. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.CommandLine.Subsystems.Annotations;
@@ -18,14 +18,7 @@ namespace System.CommandLine;
 public class HelpSubsystem(IAnnotationProvider? annotationProvider = null) 
     : CliSubsystem(HelpAnnotations.Prefix, SubsystemKind.Help, annotationProvider)
 {
-    public void SetDescription(CliSymbol symbol, string description) 
-        => SetAnnotation(symbol, HelpAnnotations.Description, description);
-
-    public string GetDescription(CliSymbol symbol) 
-        => TryGetAnnotation<string>(symbol, HelpAnnotations.Description, out var value)
-            ? value
-            : "";
-
+    public AnnotationAccessor<string> Description
     public AnnotationAccessor<string> Description 
         => new(this, HelpAnnotations.Description);
 
